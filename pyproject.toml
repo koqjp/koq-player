@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "koq-player"
+version = "0.1.0"
+description = ""
+authors = ["Shohei Okubo <okubo@koq.jp>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+"discord.py" = {extras = ["voice"], version = "^2.3.2"}
+dynaconf = "^3.2.5"
+pathlib = "^1.0.1"
+yt-dlp = "^2024.4.9"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+flake8 = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
