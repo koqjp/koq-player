@@ -1,11 +1,11 @@
 import asyncio
 import os
-import time
 import discord
 from discord.ext import commands
-from discord import FFmpegPCMAudio
 from pathlib import Path
 import yt_dlp
+
+from koq.player.queue import PlayingQueue
 
 ytdlp_opts = {
     "format": "bestaudio",
@@ -19,7 +19,7 @@ class AudioCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.volumeControl = None
-        self.queues = {}
+        self.queues: dict[int, PlayingQueue] = {}
 
     def __del__(self):
         self.bot.voice_clients.disconnect()
@@ -74,10 +74,15 @@ class AudioCog(commands.Cog):
 
             # Add to queue or play immediately
             if ctx.guild.id in self.queues:
-                self.queues[ctx.guild.id].append((title, url2))
+                self.queues[ctx.guild.id].append(
+                    url=url2, title=title, requester=ctx.author.name
+                )
                 await ctx.send(f"**{title}** has been added to the queue.")
             else:
-                self.queues[ctx.guild.id] = [(title, url2)]
+                self.queues[ctx.guild.id] = PlayingQueue()
+                self.queues[ctx.guild.id].append(
+                    url=url2, title=title, requester=ctx.author.name
+                )
                 await self.play_next(ctx)
         except Exception as e:
             print(e)
@@ -92,10 +97,10 @@ class AudioCog(commands.Cog):
             and self.queues[ctx.guild.id]
             and len(self.queues[ctx.guild.id]) >= 1
         ):
-            title, url = self.queues[ctx.guild.id].pop(0)
-            await ctx.send(f"Now playing **{title}**")
+            queue = self.queues[ctx.guild.id].pop()
+            await ctx.send(f"Now playing **{queue.title}**")
             vol_trans = discord.PCMVolumeTransformer(
-                original=discord.FFmpegPCMAudio(url), volume=0.1
+                original=discord.FFmpegPCMAudio(queue.url), volume=0.1
             )
             voice_client.play(vol_trans)
             while voice_client.is_paused() or voice_client.is_playing():
@@ -137,7 +142,11 @@ class AudioCog(commands.Cog):
     # Queue command
     @commands.command(name="queue", help="Show song queues", aliases=["q"])
     async def queue(self, ctx):
-        await ctx.send(self.queues.get(ctx.guild.id) or "No songs in queue.")
+        await ctx.send(
+            f"```{self.queues.get(ctx.guild.id)}```"
+            if self.queues.get(ctx.guild.id)
+            else "No songs in queue."
+        )
 
     @commands.command(name="volume", help="Set volume", aliases=["vol"])
     async def volume(self, ctx, volume):
@@ -166,7 +175,7 @@ class AudioCog(commands.Cog):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
             voice_client.stop()
-        self.queues[ctx.guild.id] = []
+        self.queues.pop(ctx.guild.id)
         await voice_client.disconnect()
         await ctx.send("Music stopped and queue cleared.")
 
