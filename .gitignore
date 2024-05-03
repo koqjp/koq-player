@@ -211,3 +211,6 @@ pyrightconfig.json
 
 # Ignore dynaconf secret files
 .secrets.*
+
+# Ignore tmp files
+tmp/

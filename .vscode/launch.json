@@ -5,10 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python デバッガー: 現在のファイル",
+            "name": "Python デバッガー: bot",
             "type": "debugpy",
             "request": "launch",
             "program": "run.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python デバッガー: yt-dlp",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ytdlp.py",
             "console": "integratedTerminal"
         }
     ]

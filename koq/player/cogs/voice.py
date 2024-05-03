@@ -1,4 +1,5 @@
 import asyncio
+import os
 import time
 import discord
 from discord.ext import commands
@@ -6,11 +7,18 @@ from discord import FFmpegPCMAudio
 from pathlib import Path
 import yt_dlp
 
+ytdlp_opts = {
+    "format": "bestaudio",
+    "postprocessors": [{"key": "FFmpegExtractAudio", "preferredcodec": "m4a"}],
+    "outtmpl": "tmp/%(title)s.%(ext)s",
+}
+
 
 # Create a class for the audio cog
 class AudioCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.volumeControl = None
         self.queues = {}
 
     def __del__(self):
@@ -41,29 +49,28 @@ class AudioCog(commands.Cog):
                 voice_client = await self.join_voice_channel(ctx)
 
             # Fetch video info
-            if url.find("youtube.com") != -1:
-                with yt_dlp.YoutubeDL({"format": "bestaudio"}) as ydl:
-                    try:
-                        info = ydl.extract_info(url, download=False)
-                    except yt_dlp.DownloadError:
-                        await ctx.send("Invalid URL.")
-                        return
-                    info_filtered = list(
-                        filter(
-                            lambda x: x.get("ext", "unknown") == "webm"
-                            and x.get("acodec") == "opus",
-                            info["formats"],
-                        )
-                    )
-                    url2 = info_filtered[0]["url"]
-                    print(url2)
-                    title = info["title"]
-            elif url.startswith("/") or url.startswith("C"):
+            if os.path.exists(url.replace("\\", "/")):
                 url2 = url
                 title = Path(url).name
             else:
-                await ctx.send("Invalid URL or path.")
-                return
+                with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
+                    try:
+                        info = ydl.extract_info(
+                            url,
+                            download=False,
+                        )
+                        filename = ydl.prepare_filename(info).replace(".webm", ".m4a")
+                        if not os.path.exists(filename):
+                            ydl.extract_info(
+                                url,
+                                download=True,
+                            )
+                    except yt_dlp.DownloadError:
+                        await ctx.send("Invalid URL.")
+                        return
+
+                    url2 = filename
+                    title = info["title"]
 
             # Add to queue or play immediately
             if ctx.guild.id in self.queues:
@@ -100,7 +107,7 @@ class AudioCog(commands.Cog):
             await voice_client.disconnect()
 
     # Play command
-    @commands.command(name="play", help="Plays a song")
+    @commands.command(name="play", help="Plays a song", aliases=["p"])
     async def play(self, ctx, url):
         await ctx.message.add_reaction("✅")
         await self.play_music(ctx, url)
@@ -128,12 +135,21 @@ class AudioCog(commands.Cog):
             await ctx.send("No song is currently paused.")
 
     # Queue command
-    @commands.command(name="queue", help="Show song queues")
+    @commands.command(name="queue", help="Show song queues", aliases=["q"])
     async def queue(self, ctx):
         await ctx.send(self.queues.get(ctx.guild.id) or "No songs in queue.")
 
+    @commands.command(name="volume", help="Set volume", aliases=["vol"])
+    async def volume(self, ctx, volume):
+        if ctx.voice_client is None or not ctx.voice_client.is_connected():
+            return await ctx.send("Not connected to a voice channel.")
+        elif float(volume) < 0 or float(volume) > 1:
+            return await ctx.send("Volume must be between 0 and 1.")
+        ctx.voice_client.source.volume = float(volume)
+        await ctx.send(f"Volume set to {volume}")
+
     # Skip command
-    @commands.command(name="skip", help="Skips the current song")
+    @commands.command(name="skip", help="Skips the current song", aliases=["next"])
     async def skip(self, ctx):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
@@ -143,7 +159,9 @@ class AudioCog(commands.Cog):
             await ctx.send("No song is currently playing.")
 
     # Stop command
-    @commands.command(name="stop", help="Stops the music and clears the queue")
+    @commands.command(
+        name="stop", help="Stops the music and clears the queue", aliases=["leave"]
+    )
     async def stop(self, ctx):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
