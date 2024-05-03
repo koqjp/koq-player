@@ -21,9 +21,6 @@ class AudioCog(commands.Cog):
         self.volumeControl = None
         self.queues: dict[int, PlayingQueue] = {}
 
-    def __del__(self):
-        self.bot.voice_clients.disconnect()
-
     @commands.Cog.listener()
     # Cogが読み込まれた時に発動
     async def on_ready(self):
