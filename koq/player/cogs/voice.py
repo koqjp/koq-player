@@ -1,5 +1,6 @@
 import asyncio
 import os
+import re
 import discord
 from discord.ext import commands
 from pathlib import Path
@@ -49,25 +50,14 @@ class AudioCog(commands.Cog):
             if os.path.exists(url.replace("\\", "/")):
                 url2 = url
                 title = Path(url).name
+            elif "storage.koq.jp" in url:
+                title, url2 = await self.storageServerHandler(ctx, url)
             else:
-                with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
-                    try:
-                        info = ydl.extract_info(
-                            url,
-                            download=False,
-                        )
-                        filename = ydl.prepare_filename(info).replace(".webm", ".m4a")
-                        if not os.path.exists(filename):
-                            ydl.extract_info(
-                                url,
-                                download=True,
-                            )
-                    except yt_dlp.DownloadError:
-                        await ctx.send("Invalid URL.")
-                        return
+                title, url2 = await self.generalHandler(ctx, url)
 
-                    url2 = filename
-                    title = info["title"]
+            if title is None or url2 is None:
+                await ctx.send("An error occurred while playing the song.")
+                return
 
             # Add to queue or play immediately
             if ctx.guild.id in self.queues:
@@ -166,7 +156,9 @@ class AudioCog(commands.Cog):
 
     # Stop command
     @commands.command(
-        name="stop", help="Stops the music and clears the queue", aliases=["leave"]
+        name="stop",
+        help="Stops the music and clears the queue",
+        aliases=["leave"],
     )
     async def stop(self, ctx):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
@@ -175,6 +167,54 @@ class AudioCog(commands.Cog):
         self.queues.pop(ctx.guild.id)
         await voice_client.disconnect()
         await ctx.send("Music stopped and queue cleared.")
+
+    async def generalHandler(self, ctx, url):
+        with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
+            try:
+                info = ydl.extract_info(
+                    url,
+                    download=False,
+                )
+            except yt_dlp.DownloadError:
+                await ctx.send("Invalid URL.")
+                return None, None
+
+            filename = ydl.prepare_filename(info).replace(".webm", ".m4a")
+            title = info["title"]
+            if not os.path.exists(filename):
+                ydl.extract_info(
+                    url,
+                    download=True,
+                )
+        return title, filename
+
+    async def storageServerHandler(self, ctx, url):
+        if "storage.koq.jp" in url and not url.endswith("/download"):
+            url = url.removesuffix("/") + "/download"
+        else:
+            await ctx.send("Invalid URL.")
+            return
+
+        with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
+            try:
+                title = (
+                    re.search(
+                        r"(?<=https:\/\/storage\.koq\.jp\/s\/)[a-zA-Z0-9]+(?=\/download)",
+                        url,
+                    ).group(0)
+                    + ".m4a"
+                )
+                ydl.extract_info(
+                    url,
+                    download=True,
+                )
+                os.rename("tmp/download.m4a", "tmp/" + title)
+
+            except yt_dlp.DownloadError:
+                await ctx.send("Invalid URL.")
+                return
+
+        return title, "tmp/" + title
 
 
 async def setup(bot):
