@@ -1,6 +1,6 @@
 services:
   koq-player:
-    image: koq-player
+    image: stream3715/koq-player:latest
     restart: always
     environment:
       DYNACONF_CLIENT_ID: 
