@@ -1,6 +1,7 @@
 services:
   koq-player:
     image: koq-player
+    restart: always
     environment:
       DYNACONF_CLIENT_ID: 
       DYNACONF_TOKEN: 
