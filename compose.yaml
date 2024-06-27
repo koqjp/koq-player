@@ -1,0 +1,6 @@
+services:
+  koq-player:
+    image: koq-player
+    environment:
+      DYNACONF_CLIENT_ID: 
+      DYNACONF_TOKEN: 

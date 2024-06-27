@@ -1,0 +1,41 @@
+{
+	"name": "devcontainer-koq-player",
+	"image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/poetry:2": {}
+	},
+	"containerEnv": {
+		"TZ": "Asia/Tokyo"
+	},
+	"runArgs": [
+		"--init"
+	],
+	"mounts": [
+		{
+			"type": "volume",
+			"source": "poetry-cache",
+			"target": "/home/vscode/.cache/pypoetry"
+		},
+		{
+			"type": "volume",
+			"target": "${containerWorkspaceFolder}/.venv"
+		}
+	],
+	"postAttachCommand": "sudo chown -R vscode /home/vscode/.cache/pypoetry ${containerWorkspaceFolder}/.venv && poetry config virtualenvs.in-project true && poetry install",
+	"remoteUser": "vscode",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"python.defaultInterpreterPath": "/workspace/.venv/bin/python"
+			},
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"streetsidesoftware.code-spell-checker",
+				"charliermarsh.ruff",
+				"tamasfe.even-better-toml",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	}
+}
