@@ -179,7 +179,7 @@ class AudioCog(commands.Cog):
                 await ctx.send("Invalid URL.")
                 return None, None
 
-            filename = ydl.prepare_filename(info).replace(".webm", ".m4a")
+            filename = os.path.splitext(ydl.prepare_filename(info))[0] + ".m4a"
             title = info["title"]
             if not os.path.exists(filename):
                 ydl.extract_info(
