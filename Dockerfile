@@ -1,4 +1,4 @@
-FROM python:3-slim AS builder
+FROM --platform=linux/amd64 python:3-slim AS builder
 
 ENV POETRY_HOME="/opt/poetry" \
     POETRY_VIRTUALENVS_CREATE=false \
