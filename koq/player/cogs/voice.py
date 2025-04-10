@@ -17,7 +17,7 @@ ytdlp_opts = {
 
 # Create a class for the audio cog
 class AudioCog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.volumeControl = None
         self.queues: dict[int, PlayingQueue] = {}
@@ -28,7 +28,7 @@ class AudioCog(commands.Cog):
         print("VoiceCog on ready!")
 
     # Function to join a voice channel
-    async def join_voice_channel(self, ctx):
+    async def join_voice_channel(self, ctx: commands.Context):
         if ctx.author.voice and ctx.author.voice.channel:
             channel = ctx.author.voice.channel
             return await channel.connect()
@@ -36,7 +36,7 @@ class AudioCog(commands.Cog):
             await ctx.send("You are not connected to a voice channel.")
 
     # Function to play music
-    async def play_music(self, ctx, url: str):
+    async def play_music(self, ctx: commands.Context, url: str):
         try:
             voice_client: discord.VoiceClient = discord.utils.get(
                 self.bot.voice_clients, guild=ctx.guild
@@ -77,7 +77,7 @@ class AudioCog(commands.Cog):
             await self.play_next(ctx)
 
     # Function to play next song in queue
-    async def play_next(self, ctx):
+    async def play_next(self, ctx: commands.Context):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if (
             ctx.guild.id in self.queues
@@ -98,15 +98,19 @@ class AudioCog(commands.Cog):
             self.queues.pop(ctx.guild.id)
             await voice_client.disconnect()
 
+    @commands.command(name="q")
+    async def ambiguous_q(self, ctx: commands.Context):
+        await ctx.send("ambiguous command, To stop bot, may use `stop` or to show queue, may use `queue`.")
+
     # Play command
     @commands.command(name="play", help="Plays a song", aliases=["p"])
-    async def play(self, ctx, url):
+    async def play(self, ctx: commands.Context, url: str):
         await ctx.message.add_reaction("✅")
         await self.play_music(ctx, url)
 
     # Pause command
     @commands.command(name="pause", help="Pauses a song")
-    async def pause(self, ctx):
+    async def pause(self, ctx: commands.Context):
         await ctx.message.add_reaction("✅")
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
@@ -117,7 +121,7 @@ class AudioCog(commands.Cog):
 
     # Resume command
     @commands.command(name="resume", help="Resumes a song")
-    async def resume(self, ctx):
+    async def resume(self, ctx: commands.Context):
         await ctx.message.add_reaction("✅")
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_paused():
@@ -127,8 +131,8 @@ class AudioCog(commands.Cog):
             await ctx.send("No song is currently paused.")
 
     # Queue command
-    @commands.command(name="queue", help="Show song queues", aliases=["q"])
-    async def queue(self, ctx):
+    @commands.command(name="queue", help="Show song queues")
+    async def queue(self, ctx: commands.Context):
         await ctx.send(
             f"```{self.queues.get(ctx.guild.id)}```"
             if self.queues.get(ctx.guild.id)
@@ -136,7 +140,7 @@ class AudioCog(commands.Cog):
         )
 
     @commands.command(name="volume", help="Set volume", aliases=["vol"])
-    async def volume(self, ctx, volume):
+    async def volume(self, ctx: commands.Context, volume: str):
         if ctx.voice_client is None or not ctx.voice_client.is_connected():
             return await ctx.send("Not connected to a voice channel.")
         elif float(volume) < 0 or float(volume) > 1:
@@ -145,8 +149,8 @@ class AudioCog(commands.Cog):
         await ctx.send(f"Volume set to {volume}")
 
     # Skip command
-    @commands.command(name="skip", help="Skips the current song", aliases=["next"])
-    async def skip(self, ctx):
+    @commands.command(name="skip", help="Skips the current song", aliases=["next", "s"])
+    async def skip(self, ctx: commands.Context):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
             voice_client.stop()
@@ -158,9 +162,9 @@ class AudioCog(commands.Cog):
     @commands.command(
         name="stop",
         help="Stops the music and clears the queue",
-        aliases=["leave"],
+        aliases=["leave", "quit"],
     )
-    async def stop(self, ctx):
+    async def stop(self, ctx: commands.Context):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
             voice_client.stop()
@@ -168,7 +172,7 @@ class AudioCog(commands.Cog):
         await voice_client.disconnect()
         await ctx.send("Music stopped and queue cleared.")
 
-    async def generalHandler(self, ctx, url):
+    async def generalHandler(self, ctx: commands.Context, url: str):
         with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
             try:
                 info = ydl.extract_info(
@@ -188,7 +192,7 @@ class AudioCog(commands.Cog):
                 )
         return title, filename
 
-    async def storageServerHandler(self, ctx, url):
+    async def storageServerHandler(self, ctx: commands.Context, url: str):
         if "storage.koq.jp" in url and not url.endswith("/download"):
             url = url.removesuffix("/") + "/download"
         else:
@@ -217,5 +221,5 @@ class AudioCog(commands.Cog):
         return title, "tmp/" + title
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot):
     await bot.add_cog(AudioCog(bot))  # Add the AudioCog to the bot as a cog
