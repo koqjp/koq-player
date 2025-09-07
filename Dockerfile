@@ -1,31 +1,29 @@
-FROM --platform=linux/amd64 python:3-slim AS builder
+FROM python:3-slim-trixie
 
-ENV POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_CREATE=false \
-    \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    \
-    PYSETUP_PATH="/opt/pysetup"
+# The installer requires curl (and certificates) to download the release archive
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates ffmpeg
 
-ENV PATH="$POETRY_HOME/bin:$PATH"
+# Download the latest installer
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
-RUN apt-get update && \
-    apt-get install --no-install-recommends -y curl ffmpeg && \
-    apt-get clean
+# Run the installer then remove it
+RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-RUN curl -sSL https://install.python-poetry.org/ | python -
+# Ensure the installed binary is on the `PATH`
+ENV PATH="/root/.local/bin/:$PATH"
 
 # packages install
-RUN mkdir /app
 WORKDIR /app
-COPY ./pyproject.toml /app/pyproject.toml
-RUN poetry install --only main
 
-# Python script
+ENV UV_SYSTEM_PYTHON=true \ 
+    UV_COMPILE_BYTCODE=1 \
+    UV_CAHE_DIR=/root/.cache/uv \
+    UV_LINK_MODE=copy
+
+COPY pyproject.toml uv.lock run.py settings.toml /app/
 COPY ./koq /app/koq
-COPY ./run.py /app/run.py
-COPY settings.toml /app/settings.toml
 
-CMD ["poetry", "run", "python", "run.py"]
+RUN uv export --frozen --no-dev --format requirements-txt > requirements.txt \ 
+    && uv pip install -r requirements.txt
+
+CMD ["uv", "run", "--no-dev", "run.py"]
