@@ -37,8 +37,9 @@ class AudioCog(commands.Cog):
 
     # Function to play music
     async def play_music(self, ctx: commands.Context, url: str):
+        voice_client: discord.VoiceClient = None
         try:
-            voice_client: discord.VoiceClient = discord.utils.get(
+            voice_client = discord.utils.get(
                 self.bot.voice_clients, guild=ctx.guild
             )
 
@@ -57,6 +58,9 @@ class AudioCog(commands.Cog):
 
             if title is None or url2 is None:
                 await ctx.send("An error occurred while playing the song.")
+                # Clean up: disconnect if no queue exists and nothing is playing
+                if (ctx.guild.id not in self.queues or len(self.queues.get(ctx.guild.id, [])) == 0) and voice_client:
+                    await voice_client.disconnect()
                 return
 
             # Add to queue or play immediately
@@ -74,7 +78,11 @@ class AudioCog(commands.Cog):
         except Exception as e:
             print(e)
             await ctx.send("An error occurred while playing the song.")
-            await self.play_next(ctx)
+            # Clean up: disconnect if no queue exists and nothing is playing
+            if (ctx.guild.id not in self.queues or len(self.queues.get(ctx.guild.id, [])) == 0) and voice_client:
+                await voice_client.disconnect()
+            elif ctx.guild.id in self.queues:
+                await self.play_next(ctx)
 
     # Function to play next song in queue
     async def play_next(self, ctx: commands.Context):
@@ -182,14 +190,24 @@ class AudioCog(commands.Cog):
             except yt_dlp.DownloadError:
                 await ctx.send("Invalid URL.")
                 return None, None
+            except Exception as e:
+                print(f"General handler error: {e}")
+                await ctx.send("An error occurred while processing the URL.")
+                return None, None
 
-            filename = os.path.splitext(ydl.prepare_filename(info))[0] + ".m4a"
-            title = info["title"]
-            if not os.path.exists(filename):
-                ydl.extract_info(
-                    url,
-                    download=True,
-                )
+            try:
+                filename = os.path.splitext(ydl.prepare_filename(info))[0] + ".m4a"
+                title = info["title"]
+                if not os.path.exists(filename):
+                    ydl.extract_info(
+                        url,
+                        download=True,
+                    )
+            except Exception as e:
+                print(f"Download error: {e}")
+                await ctx.send("An error occurred while downloading the audio.")
+                return None, None
+                
         return title, filename
 
     async def storageServerHandler(self, ctx: commands.Context, url: str):
@@ -197,7 +215,7 @@ class AudioCog(commands.Cog):
             url = url.removesuffix("/") + "/download"
         else:
             await ctx.send("Invalid URL.")
-            return
+            return None, None
 
         with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
             try:
@@ -216,7 +234,11 @@ class AudioCog(commands.Cog):
 
             except yt_dlp.DownloadError:
                 await ctx.send("Invalid URL.")
-                return
+                return None, None
+            except Exception as e:
+                print(f"Storage server error: {e}")
+                await ctx.send("An error occurred while downloading from storage server.")
+                return None, None
 
         return title, "tmp/" + title
 
