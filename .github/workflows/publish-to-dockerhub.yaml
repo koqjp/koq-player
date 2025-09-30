@@ -43,7 +43,3 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha,scope=platform-${{ env.PLATFORM_PAIR }}
           cache-to: type=gha,mode=max,scope=platform-${{ env.PLATFORM_PAIR }}
-
-      - name: Inspect image
-        run: |
-          docker buildx imagetools inspect ${{ vars.REGISTRY_IMAGE }}:${{ steps.meta.outputs.tags }}
