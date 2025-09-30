@@ -9,27 +9,22 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version-file: "pyproject.toml"
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install uv
-          uv venv
-          uv install -r requirements.txt
-          uv pip install pytest
+          uv sync --all-extras --dev
 
       - name: Run tests with uv
         run: |
-          uv pip install pytest
-          python -m pytest tests/ -v
+          uvx pytest tests/ -v
