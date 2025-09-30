@@ -214,3 +214,6 @@ pyrightconfig.json
 
 # Ignore tmp files
 tmp/
+
+# Ignore generated requirements.txt
+requirements.txt
