@@ -210,7 +210,10 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,git
 
 # Ignore dynaconf secret files
-.secrets.*
+.secrets*
 
 # Ignore tmp files
 tmp/
+
+# Ignore generated requirements.txt
+requirements.txt
