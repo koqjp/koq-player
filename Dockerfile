@@ -8,8 +8,8 @@ RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends curl zi
     && apt-get -qq remove --purge -y curl zip unzip \
     && apt-get -qq -y autoremove \
     && apt-get -qq clean \
-    && echo 'export DENO_INSTALL="/root/.deno"' >> ~/.bash_profile \
-    && echo 'export PATH="$DENO_INSTALL/bin:$PATH"' >> ~/.bash_profile
+    && echo 'export DENO_INSTALL="/root/.deno"' >> ~/.bashrc \
+    && echo 'export PATH="$DENO_INSTALL/bin:$PATH"' >> ~/.bashrc
 
   # Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
