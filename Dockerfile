@@ -2,9 +2,16 @@ FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim
 
 # The installer requires curl (and certificates) to download the release archive
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates ffmpeg
+RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends curl zip unzip ca-certificates ffmpeg \
+    && curl -fsSL https://deno.land/x/install/install.sh | sh \
+    && apt-get -qq remove curl zip unzip \
+    && apt-get -qq remove --purge -y curl zip unzip \
+    && apt-get -qq -y autoremove \
+    && apt-get -qq clean \
+    && echo 'export DENO_INSTALL="/root/.deno"' >> ~/.bash_profile \
+    && echo 'export PATH="$DENO_INSTALL/bin:$PATH"' >> ~/.bash_profile
 
-# Ensure the installed binary is on the `PATH`
+  # Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
 
 # packages install
