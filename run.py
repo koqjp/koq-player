@@ -24,14 +24,23 @@ class KoqBot(commands.Bot):
             print("Synced global slash commands.")
 
 
-intents = discord.Intents.default()
+intents = discord.Intents.none()
+intents.guilds = True
+intents.guild_messages = True
+intents.voice_states = True
 intents.message_content = True
 bot = KoqBot(command_prefix="//", intents=intents)
 
 print(
     discord.utils.oauth_url(
         client_id=settings.client_id,
-        permissions=discord.Permissions(permissions=8),
+        permissions=discord.Permissions(
+            view_channel=True,
+            send_messages=True,
+            add_reactions=True,
+            connect=True,
+            speak=True,
+        ),
         scopes=["bot", "applications.commands"],
     )
 )
