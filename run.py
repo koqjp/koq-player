@@ -1,37 +1,44 @@
 import asyncio
-from discord.ext import commands  # Bot Commands Frameworkをインポート
+
 import discord
+from discord.ext import commands  # Bot Commands Frameworkをインポート
+
 from koq.player.config import settings
 
 INITIAL_EXTENSIONS = ["greetings", "voice"]
 
+
+class KoqBot(commands.Bot):
+    async def setup_hook(self) -> None:
+        for cog in INITIAL_EXTENSIONS:
+            await self.load_extension(f"koq.player.cogs.{cog}")
+
+        guild_id = settings.get("guild_id")
+        if guild_id:
+            guild = discord.Object(id=int(guild_id))
+            self.tree.copy_global_to(guild=guild)
+            await self.tree.sync(guild=guild)
+            print(f"Synced slash commands to guild: {guild_id}")
+        else:
+            await self.tree.sync()
+            print("Synced global slash commands.")
+
+
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("//"), intents=intents)
+bot = KoqBot(command_prefix="//", intents=intents)
 
 print(
     discord.utils.oauth_url(
         client_id=settings.client_id,
         permissions=discord.Permissions(permissions=8),
-        scopes=["bot"],
+        scopes=["bot", "applications.commands"],
     )
 )
 
 
 async def main():
-    async with bot:
-        for cog in INITIAL_EXTENSIONS:
-            await bot.load_extension(f"koq.player.cogs.{cog}")
-        await bot.start(settings.token)
-
-
-async def load_extensions(bot):
-    for ext in INITIAL_EXTENSIONS:
-        try:
-            await bot.load_extension(f"koq.player.cogs.{ext}")
-        except Exception as e:
-            print(f"Failed to load extension {ext}.")
-            e.with_traceback()
+    await bot.start(settings.token)
 
 
 asyncio.run(main())

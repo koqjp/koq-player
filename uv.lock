@@ -541,7 +541,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "discord-py" },
+    { name = "discord-py", specifier = ">=2.3.0" },
     { name = "discord-py", marker = "extra == 'voice'", specifier = ">=2.6.4" },
     { name = "dynaconf" },
     { name = "pathlib" },

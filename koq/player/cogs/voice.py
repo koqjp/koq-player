@@ -106,20 +106,24 @@ class AudioCog(commands.Cog):
             self.queues.pop(ctx.guild.id)
             await voice_client.disconnect()
 
-    @commands.command(name="q")
+    @commands.hybrid_command(name="q")
     async def ambiguous_q(self, ctx: commands.Context):
         await ctx.send("ambiguous command, To stop bot, may use `stop` or to show queue, may use `queue`.")
 
     # Play command
-    @commands.command(name="play", help="Plays a song", aliases=["p"])
+    @commands.hybrid_command(name="play", help="Plays a song", aliases=["p"])
     async def play(self, ctx: commands.Context, url: str):
-        await ctx.message.add_reaction("✅")
+        if ctx.interaction:
+            await ctx.defer()
+        if ctx.message:
+            await ctx.message.add_reaction("✅")
         await self.play_music(ctx, url)
 
     # Pause command
-    @commands.command(name="pause", help="Pauses a song")
+    @commands.hybrid_command(name="pause", help="Pauses a song")
     async def pause(self, ctx: commands.Context):
-        await ctx.message.add_reaction("✅")
+        if ctx.message:
+            await ctx.message.add_reaction("✅")
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
             voice_client.pause()
@@ -128,9 +132,10 @@ class AudioCog(commands.Cog):
             await ctx.send("No song is currently playing.")
 
     # Resume command
-    @commands.command(name="resume", help="Resumes a song")
+    @commands.hybrid_command(name="resume", help="Resumes a song")
     async def resume(self, ctx: commands.Context):
-        await ctx.message.add_reaction("✅")
+        if ctx.message:
+            await ctx.message.add_reaction("✅")
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_paused():
             voice_client.resume()
@@ -139,7 +144,7 @@ class AudioCog(commands.Cog):
             await ctx.send("No song is currently paused.")
 
     # Queue command
-    @commands.command(name="queue", help="Show song queues")
+    @commands.hybrid_command(name="queue", help="Show song queues")
     async def queue(self, ctx: commands.Context):
         await ctx.send(
             f"```{self.queues.get(ctx.guild.id)}```"
@@ -147,7 +152,7 @@ class AudioCog(commands.Cog):
             else "No songs in queue."
         )
 
-    @commands.command(name="volume", help="Set volume", aliases=["vol"])
+    @commands.hybrid_command(name="volume", help="Set volume", aliases=["vol"])
     async def volume(self, ctx: commands.Context, volume: str):
         if ctx.voice_client is None or not ctx.voice_client.is_connected():
             return await ctx.send("Not connected to a voice channel.")
@@ -157,7 +162,7 @@ class AudioCog(commands.Cog):
         await ctx.send(f"Volume set to {volume}")
 
     # Skip command
-    @commands.command(name="skip", help="Skips the current song", aliases=["next", "s"])
+    @commands.hybrid_command(name="skip", help="Skips the current song", aliases=["next", "s"])
     async def skip(self, ctx: commands.Context):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
@@ -167,7 +172,7 @@ class AudioCog(commands.Cog):
             await ctx.send("No song is currently playing.")
 
     # Stop command
-    @commands.command(
+    @commands.hybrid_command(
         name="stop",
         help="Stops the music and clears the queue",
         aliases=["leave", "quit"],
