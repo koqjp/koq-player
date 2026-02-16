@@ -39,4 +39,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          uv run python-semantic-release version --skip-build
+          uv run python-semantic-release -vv version --skip-build

@@ -556,7 +556,7 @@ dev = [
     { name = "flake8" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
-    { name = "python-semantic-release", specifier = ">=9,<10" },
+    { name = "python-semantic-release" },
 ]
 
 [[package]]
