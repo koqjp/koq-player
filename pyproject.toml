@@ -25,6 +25,7 @@ dev = [
     "flake8",
     "pytest",
     "pytest-asyncio",
+    "python-semantic-release>=9,<10",
 ]
 
 [tool.uv]
@@ -49,3 +50,18 @@ markers = [
     "integration: marks tests as integration tests",
 ]
 asyncio_mode = "auto"
+
+[tool.semantic_release]
+commit_parser = "conventional"
+tag_format = "v{version}"
+allow_zero_version = true
+commit_message = "chore(release): {version} [skip ci]"
+
+[tool.semantic_release.changelog]
+mode = "update"
+insertion_flag = "<!-- version list -->"
+
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGELOG.md"
+output_format = "md"
+mask_initial_release = true
