@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.2 (2026-02-16)
+
+### Bug Fixes
+
+- Reduce unused permissions
+  ([`5eef0c0`](https://github.com/stream3715/koq-player/commit/5eef0c0982173e27b21a6bbae4517d17ce72131a))
+
+
 ## v0.2.1 (2026-02-16)
 
 ### Bug Fixes
