@@ -12,8 +12,8 @@ class GreetingsCog(commands.Cog):
     async def on_ready(self):
         print("GreetingsCog on ready!")
 
-    @commands.command(name="hello", aliases=["hi", "hey"])
-    async def hello(self, ctx, *, member: discord.Member = None):
+    @commands.hybrid_command(name="hello", aliases=["hi", "hey"])
+    async def hello(self, ctx: commands.Context, *, member: discord.Member = None):
         """Says hello"""
         member = member or ctx.author
         if self._last_member is None or self._last_member.id != member.id:

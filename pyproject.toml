@@ -7,7 +7,7 @@ requires-python = ">=3.13, <4"
 readme = "README.md"
 license = "MIT"
 dependencies = [
-    "discord.py",
+    "discord.py>=2.3.0",
     "dynaconf",
     "pathlib",
     "pynacl>=1.6.2",
