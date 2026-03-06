@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.3 (2026-03-06)
+
+### Bug Fixes
+
+- Update yt-dlp to 2026.03.03
+  ([`9dff173`](https://github.com/stream3715/koq-player/commit/9dff173b994bfec3ac4e16c3372bc1a629681a08))
+
+
 ## v0.2.2 (2026-02-16)
 
 ### Bug Fixes
