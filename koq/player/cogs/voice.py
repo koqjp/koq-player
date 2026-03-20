@@ -78,7 +78,7 @@ class AudioCog(commands.Cog):
                 )
                 await self.play_next(ctx)
         except Exception as e:
-            logger.error(f"Error in play_music: {e}")
+            logger.exception(f"Error in play_music: {e}")
             await ctx.send("An error occurred while playing the song.")
             # Clean up: disconnect if no queue exists and nothing is playing
             if (
@@ -250,7 +250,7 @@ class AudioCog(commands.Cog):
                 await ctx.send("Invalid URL.")
                 return None, None
             except Exception as e:
-                logger.error(f"Storage server error: {e}")
+                logger.exception("Storage server error")
                 await ctx.send(
                     "An error occurred while downloading from storage server."
                 )
