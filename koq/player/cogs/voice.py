@@ -205,7 +205,7 @@ class AudioCog(commands.Cog):
                 await ctx.send("Invalid URL.")
                 return None, None
             except Exception as e:
-                logger.error(f"General handler error: {e}")
+                logger.opt(exception=True).error(f"General handler error: {e}")
                 await ctx.send("An error occurred while processing the URL.")
                 return None, None
 
@@ -218,7 +218,7 @@ class AudioCog(commands.Cog):
                         download=True,
                     )
             except Exception as e:
-                logger.error(f"Download error: {e}")
+                logger.opt(exception=True).error(f"Download error: {e}")
                 await ctx.send("An error occurred while downloading the audio.")
                 return None, None
 
@@ -250,7 +250,7 @@ class AudioCog(commands.Cog):
                 await ctx.send("Invalid URL.")
                 return None, None
             except Exception as e:
-                logger.exception("Storage server error")
+                logger.opt(exception=True).error(f"Storage server handler error: {e}")
                 await ctx.send(
                     "An error occurred while downloading from storage server."
                 )
