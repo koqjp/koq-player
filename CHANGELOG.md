@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.4 (2026-03-20)
+
+### Bug Fixes
+
+- Update discord.py and pycryptodomex dependencies
+  ([`cf0add4`](https://github.com/stream3715/koq-player/commit/cf0add4511c630492f7d583ac39053341c3fe5a3))
+
+
 ## v0.2.3 (2026-03-06)
 
 ### Bug Fixes
