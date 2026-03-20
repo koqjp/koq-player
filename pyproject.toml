@@ -7,21 +7,21 @@ requires-python = ">=3.13, <4"
 readme = "README.md"
 license = "MIT"
 dependencies = [
-    "discord.py>=2.3.0",
+    "discord.py[voice]>=2.7.1",
     "dynaconf",
     "pathlib",
-    "pynacl>=1.6.2",
+    "pycryptodomex>=3.23.0",
     "yt-dlp",
 ]
 
 [project.optional-dependencies]
 voice = [
-    "discord.py>=2.6.4",
+    "discord.py>=2.7.1",
 ]
 
 [dependency-groups]
 dev = [
-    "black",
+    "ruff",
     "flake8",
     "pytest",
     "pytest-asyncio",

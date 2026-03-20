@@ -39,9 +39,7 @@ class AudioCog(commands.Cog):
     async def play_music(self, ctx: commands.Context, url: str):
         voice_client: discord.VoiceClient = None
         try:
-            voice_client = discord.utils.get(
-                self.bot.voice_clients, guild=ctx.guild
-            )
+            voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
 
             # If bot is not already in a voice channel, join the caller's channel
             if not voice_client or not voice_client.is_connected():
@@ -59,7 +57,10 @@ class AudioCog(commands.Cog):
             if title is None or url2 is None:
                 await ctx.send("An error occurred while playing the song.")
                 # Clean up: disconnect if no queue exists and nothing is playing
-                if (ctx.guild.id not in self.queues or len(self.queues.get(ctx.guild.id, [])) == 0) and voice_client:
+                if (
+                    ctx.guild.id not in self.queues
+                    or len(self.queues.get(ctx.guild.id, [])) == 0
+                ) and voice_client:
                     await voice_client.disconnect()
                 return
 
@@ -79,7 +80,10 @@ class AudioCog(commands.Cog):
             print(e)
             await ctx.send("An error occurred while playing the song.")
             # Clean up: disconnect if no queue exists and nothing is playing
-            if (ctx.guild.id not in self.queues or len(self.queues.get(ctx.guild.id, [])) == 0) and voice_client:
+            if (
+                ctx.guild.id not in self.queues
+                or len(self.queues.get(ctx.guild.id, [])) == 0
+            ) and voice_client:
                 await voice_client.disconnect()
             elif ctx.guild.id in self.queues:
                 await self.play_next(ctx)
@@ -108,7 +112,9 @@ class AudioCog(commands.Cog):
 
     @commands.hybrid_command(name="q")
     async def ambiguous_q(self, ctx: commands.Context):
-        await ctx.send("ambiguous command, To stop bot, may use `stop` or to show queue, may use `queue`.")
+        await ctx.send(
+            "ambiguous command, To stop bot, may use `stop` or to show queue, may use `queue`."
+        )
 
     # Play command
     @commands.hybrid_command(name="play", help="Plays a song", aliases=["p"])
@@ -162,7 +168,9 @@ class AudioCog(commands.Cog):
         await ctx.send(f"Volume set to {volume}")
 
     # Skip command
-    @commands.hybrid_command(name="skip", help="Skips the current song", aliases=["next", "s"])
+    @commands.hybrid_command(
+        name="skip", help="Skips the current song", aliases=["next", "s"]
+    )
     async def skip(self, ctx: commands.Context):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
@@ -212,7 +220,7 @@ class AudioCog(commands.Cog):
                 print(f"Download error: {e}")
                 await ctx.send("An error occurred while downloading the audio.")
                 return None, None
-                
+
         return title, filename
 
     async def storageServerHandler(self, ctx: commands.Context, url: str):
@@ -242,7 +250,9 @@ class AudioCog(commands.Cog):
                 return None, None
             except Exception as e:
                 print(f"Storage server error: {e}")
-                await ctx.send("An error occurred while downloading from storage server.")
+                await ctx.send(
+                    "An error occurred while downloading from storage server."
+                )
                 return None, None
 
         return title, "tmp/" + title
