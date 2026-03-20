@@ -19,7 +19,7 @@ class KoqBot(commands.Bot):
             guild = discord.Object(id=int(guild_id))
             self.tree.copy_global_to(guild=guild)
             await self.tree.sync(guild=guild)
-            logger.info(f"Synced slash commands to guild: {guild_id}")
+            logger.info("Synced slash commands to guild: {}", guild_id)
         else:
             await self.tree.sync()
             logger.info("Synced global slash commands.")
