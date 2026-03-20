@@ -1,5 +1,6 @@
 from discord.ext import commands  # Bot Commands Frameworkをインポート
 import discord
+from loguru import logger
 
 
 class GreetingsCog(commands.Cog):
@@ -10,7 +11,7 @@ class GreetingsCog(commands.Cog):
     @commands.Cog.listener()
     # Cogが読み込まれた時に発動
     async def on_ready(self):
-        print("GreetingsCog on ready!")
+        logger.info("GreetingsCog on ready!")
 
     @commands.hybrid_command(name="hello", aliases=["hi", "hey"])
     async def hello(self, ctx: commands.Context, *, member: discord.Member = None):
