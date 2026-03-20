@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.2.5 (2026-03-20)
+
+### Bug Fixes
+
+- Enhance error logging with loguru in general and download handlers
+  ([`5f8313b`](https://github.com/stream3715/koq-player/commit/5f8313bfb392b3db0a7b18fe7c59890fb962f083))
+
+- Replace print statements with loguru
+  ([`6e34e1c`](https://github.com/stream3715/koq-player/commit/6e34e1cb5b102428266cf2602ee55087c2471642))
+
+
 ## v0.2.4 (2026-03-20)
 
 ### Bug Fixes
