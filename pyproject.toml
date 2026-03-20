@@ -9,6 +9,7 @@ license = "MIT"
 dependencies = [
     "discord.py[voice]>=2.7.1",
     "dynaconf",
+    "loguru>=0.7.3",
     "pathlib",
     "pycryptodomex>=3.23.0",
     "yt-dlp",

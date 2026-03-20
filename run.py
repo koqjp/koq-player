@@ -2,6 +2,7 @@ import asyncio
 
 import discord
 from discord.ext import commands  # Bot Commands Frameworkをインポート
+from loguru import logger
 
 from koq.player.config import settings
 
@@ -18,10 +19,10 @@ class KoqBot(commands.Bot):
             guild = discord.Object(id=int(guild_id))
             self.tree.copy_global_to(guild=guild)
             await self.tree.sync(guild=guild)
-            print(f"Synced slash commands to guild: {guild_id}")
+            logger.info(f"Synced slash commands to guild: {guild_id}")
         else:
             await self.tree.sync()
-            print("Synced global slash commands.")
+            logger.info("Synced global slash commands.")
 
 
 intents = discord.Intents.none()
@@ -31,7 +32,7 @@ intents.voice_states = True
 intents.message_content = True
 bot = KoqBot(command_prefix="//", intents=intents)
 
-print(
+logger.info(
     discord.utils.oauth_url(
         client_id=settings.client_id,
         permissions=discord.Permissions(

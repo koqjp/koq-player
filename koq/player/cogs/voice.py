@@ -3,6 +3,7 @@ import os
 import re
 import discord
 from discord.ext import commands
+from loguru import logger
 from pathlib import Path
 import yt_dlp
 
@@ -25,7 +26,7 @@ class AudioCog(commands.Cog):
     @commands.Cog.listener()
     # Cogが読み込まれた時に発動
     async def on_ready(self):
-        print("VoiceCog on ready!")
+        logger.info("VoiceCog on ready!")
 
     # Function to join a voice channel
     async def join_voice_channel(self, ctx: commands.Context):
@@ -77,7 +78,7 @@ class AudioCog(commands.Cog):
                 )
                 await self.play_next(ctx)
         except Exception as e:
-            print(e)
+            logger.error(f"Error in play_music: {e}")
             await ctx.send("An error occurred while playing the song.")
             # Clean up: disconnect if no queue exists and nothing is playing
             if (
@@ -204,7 +205,7 @@ class AudioCog(commands.Cog):
                 await ctx.send("Invalid URL.")
                 return None, None
             except Exception as e:
-                print(f"General handler error: {e}")
+                logger.error(f"General handler error: {e}")
                 await ctx.send("An error occurred while processing the URL.")
                 return None, None
 
@@ -217,7 +218,7 @@ class AudioCog(commands.Cog):
                         download=True,
                     )
             except Exception as e:
-                print(f"Download error: {e}")
+                logger.error(f"Download error: {e}")
                 await ctx.send("An error occurred while downloading the audio.")
                 return None, None
 
@@ -249,7 +250,7 @@ class AudioCog(commands.Cog):
                 await ctx.send("Invalid URL.")
                 return None, None
             except Exception as e:
-                print(f"Storage server error: {e}")
+                logger.error(f"Storage server error: {e}")
                 await ctx.send(
                     "An error occurred while downloading from storage server."
                 )
