@@ -12,7 +12,7 @@ from koq.player.queue import PlayingQueue
 ytdlp_opts = {
     "format": "bestaudio",
     "postprocessors": [{"key": "FFmpegExtractAudio", "preferredcodec": "m4a"}],
-    "outtmpl": "tmp/%(title)s.%(ext)s",
+    "outtmpl": "tmp/%(title).150B.%(ext)s",
 }
 
 
