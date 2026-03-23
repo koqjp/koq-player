@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.2.6 (2026-03-23)
+
+### Bug Fixes
+
+- Update output template for audio files to limit title length
+  ([`40df17f`](https://github.com/stream3715/koq-player/commit/40df17fec553684ce0c34e5665c9066f789db0ed))
+
+
 ## v0.2.5 (2026-03-20)
 
 ### Bug Fixes
