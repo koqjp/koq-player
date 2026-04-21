@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v0.2.7 (2026-04-21)
+
+### Bug Fixes
+
+- Update GitHub Actions and setup-uv versions
+  ([`2c2a57f`](https://github.com/stream3715/koq-player/commit/2c2a57fcb4353ea451148baa6a972d0d1492f563))
+
+### Build System
+
+- **deps**: Bump dynaconf from 3.2.12 to 3.2.13
+  ([`c9e9583`](https://github.com/stream3715/koq-player/commit/c9e958381478edee3d45bc5215b7cb3100d55e1a))
+
+- **deps**: Bump yt-dlp from 2026.3.3 to 2026.3.17
+  ([`ccbbf81`](https://github.com/stream3715/koq-player/commit/ccbbf810cf20b9edd9925b8ed4d2ea0b0a08fa0e))
+
+
 ## v0.2.6 (2026-03-23)
 
 ### Bug Fixes
