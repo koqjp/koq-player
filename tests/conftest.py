@@ -1,9 +1,10 @@
 """Test configuration for pytest."""
 
-import pytest
 import asyncio
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import AsyncMock, Mock
+
 import discord
+import pytest
 from discord.ext import commands
 
 

@@ -1,11 +1,12 @@
 import asyncio
 import os
 import re
+from pathlib import Path
+
 import discord
+import yt_dlp
 from discord.ext import commands
 from loguru import logger
-from pathlib import Path
-import yt_dlp
 
 from koq.player.queue import PlayingQueue
 

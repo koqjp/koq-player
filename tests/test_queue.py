@@ -1,6 +1,7 @@
 """Tests for the PlayingQueue and PlayingQueueItem classes."""
 
 import pytest
+
 from koq.player.queue import PlayingQueue, PlayingQueueItem
 
 
