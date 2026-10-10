@@ -29,6 +29,10 @@ class AudioCog(commands.Cog):
     async def on_ready(self):
         logger.info("VoiceCog on ready!")
 
+    async def cog_command_error(self, ctx: commands.Context, error: Exception):
+        logger.opt(exception=True).error(f"Command error in AudioCog: {error}")
+        await ctx.send(f"❌ `{type(error).__name__}: {error}`")
+
     # Function to join a voice channel
     async def join_voice_channel(self, ctx: commands.Context):
         if ctx.author.voice and ctx.author.voice.channel:
@@ -60,31 +64,27 @@ class AudioCog(commands.Cog):
                 await ctx.send("An error occurred while playing the song.")
                 # Clean up: disconnect if no queue exists and nothing is playing
                 if (
-                    ctx.guild.id not in self.queues
-                    or len(self.queues.get(ctx.guild.id, [])) == 0
+                    ctx.guild.id not in self.queues or len(self.queues.get(ctx.guild.id, [])) == 0
                 ) and voice_client:
                     await voice_client.disconnect()
                 return
 
             # Add to queue or play immediately
             if ctx.guild.id in self.queues:
-                self.queues[ctx.guild.id].append(
-                    url=url2, title=title, requester=ctx.author.name
-                )
+                self.queues[ctx.guild.id].append(url=url2, title=title, requester=ctx.author.name)
                 await ctx.send(f"**{title}** has been added to the queue.")
             else:
                 self.queues[ctx.guild.id] = PlayingQueue()
-                self.queues[ctx.guild.id].append(
-                    url=url2, title=title, requester=ctx.author.name
-                )
+                self.queues[ctx.guild.id].append(url=url2, title=title, requester=ctx.author.name)
                 await self.play_next(ctx)
         except Exception as e:
             logger.exception(f"Error in play_music: {e}")
-            await ctx.send("An error occurred while playing the song.")
+            await ctx.send(
+                f"❌ An error occurred while playing the song.\n`{type(e).__name__}: {e}`"
+            )
             # Clean up: disconnect if no queue exists and nothing is playing
             if (
-                ctx.guild.id not in self.queues
-                or len(self.queues.get(ctx.guild.id, [])) == 0
+                ctx.guild.id not in self.queues or len(self.queues.get(ctx.guild.id, [])) == 0
             ) and voice_client:
                 await voice_client.disconnect()
             elif ctx.guild.id in self.queues:
@@ -93,24 +93,32 @@ class AudioCog(commands.Cog):
     # Function to play next song in queue
     async def play_next(self, ctx: commands.Context):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
-        if (
-            ctx.guild.id in self.queues
-            and self.queues[ctx.guild.id]
-            and len(self.queues[ctx.guild.id]) >= 1
-        ):
-            queue = self.queues[ctx.guild.id].pop()
-            await ctx.send(f"Now playing **{queue.title}**")
-            vol_trans = discord.PCMVolumeTransformer(
-                original=discord.FFmpegPCMAudio(queue.url), volume=0.1
-            )
-            voice_client.play(vol_trans)
-            while voice_client.is_paused() or voice_client.is_playing():
-                await asyncio.sleep(1)
-            await self.play_next(ctx)
-        else:
-            await ctx.send("No more songs in queue.")
-            self.queues.pop(ctx.guild.id)
-            await voice_client.disconnect()
+        try:
+            if (
+                ctx.guild.id in self.queues
+                and self.queues[ctx.guild.id]
+                and len(self.queues[ctx.guild.id]) >= 1
+            ):
+                queue = self.queues[ctx.guild.id].pop()
+                await ctx.send(f"Now playing **{queue.title}**")
+                vol_trans = discord.PCMVolumeTransformer(
+                    original=discord.FFmpegPCMAudio(queue.url), volume=0.1
+                )
+                voice_client.play(vol_trans)
+                while voice_client.is_paused() or voice_client.is_playing():
+                    await asyncio.sleep(1)
+                await self.play_next(ctx)
+            else:
+                await ctx.send("No more songs in queue.")
+                self.queues.pop(ctx.guild.id)
+                await voice_client.disconnect()
+        except Exception as e:
+            logger.opt(exception=True).error(f"Error in play_next: {e}")
+            await ctx.send(f"❌ An error occurred during playback.\n`{type(e).__name__}: {e}`")
+            if ctx.guild.id in self.queues:
+                self.queues.pop(ctx.guild.id)
+            if voice_client and voice_client.is_connected():
+                await voice_client.disconnect()
 
     @commands.hybrid_command(name="q")
     async def ambiguous_q(self, ctx: commands.Context):
@@ -170,9 +178,7 @@ class AudioCog(commands.Cog):
         await ctx.send(f"Volume set to {volume}")
 
     # Skip command
-    @commands.hybrid_command(
-        name="skip", help="Skips the current song", aliases=["next", "s"]
-    )
+    @commands.hybrid_command(name="skip", help="Skips the current song", aliases=["next", "s"])
     async def skip(self, ctx: commands.Context):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
         if voice_client and voice_client.is_playing():
@@ -202,12 +208,14 @@ class AudioCog(commands.Cog):
                     url,
                     download=False,
                 )
-            except yt_dlp.DownloadError:
-                await ctx.send("Invalid URL.")
+            except yt_dlp.DownloadError as e:
+                await ctx.send(f"❌ Invalid URL.\n`{str(e)[:200]}`")
                 return None, None
             except Exception as e:
                 logger.opt(exception=True).error(f"General handler error: {e}")
-                await ctx.send("An error occurred while processing the URL.")
+                await ctx.send(
+                    f"❌ An error occurred while processing the URL.\n`{type(e).__name__}: {e}`"
+                )
                 return None, None
 
             try:
@@ -220,7 +228,9 @@ class AudioCog(commands.Cog):
                     )
             except Exception as e:
                 logger.opt(exception=True).error(f"Download error: {e}")
-                await ctx.send("An error occurred while downloading the audio.")
+                await ctx.send(
+                    f"❌ An error occurred while downloading the audio.\n`{type(e).__name__}: {e}`"
+                )
                 return None, None
 
         return title, filename
@@ -247,13 +257,14 @@ class AudioCog(commands.Cog):
                 )
                 os.rename("tmp/download.m4a", "tmp/" + title)
 
-            except yt_dlp.DownloadError:
-                await ctx.send("Invalid URL.")
+            except yt_dlp.DownloadError as e:
+                await ctx.send(f"❌ Invalid URL.\n`{str(e)[:200]}`")
                 return None, None
             except Exception as e:
                 logger.opt(exception=True).error(f"Storage server handler error: {e}")
                 await ctx.send(
-                    "An error occurred while downloading from storage server."
+                    "❌ An error occurred while downloading from storage server.\n"
+                    f"`{type(e).__name__}: {e}`"
                 )
                 return None, None
 
