@@ -1,19 +1,10 @@
 """Test configuration for pytest."""
 
-import asyncio
 from unittest.mock import AsyncMock, Mock
 
 import discord
 import pytest
 from discord.ext import commands
-
-
-@pytest.fixture
-def event_loop():
-    """Create an instance of the default event loop for the test session."""
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest.fixture

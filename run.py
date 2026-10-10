@@ -6,7 +6,7 @@ from loguru import logger
 
 from koq.player.config import settings
 
-INITIAL_EXTENSIONS = ["greetings", "voice"]
+INITIAL_EXTENSIONS = ["voice"]
 
 
 class KoqBot(commands.Bot):
