@@ -2,6 +2,24 @@
 
 <!-- version list -->
 
+## v0.3.0 (2026-10-10)
+
+### Bug Fixes
+
+- Use GitHub App token for release workflow
+  ([`cd46f53`](https://github.com/koqjp/koq-player/commit/cd46f53f7928c535893de61148f300fb23b4cf20))
+
+### Build System
+
+- **deps-dev**: Bump ruff from 0.16.4 to 0.16.5
+  ([`61c607e`](https://github.com/koqjp/koq-player/commit/61c607e1e90052050b1eea7135a49c1c9c1741bc))
+
+### Features
+
+- Modernize voice cog, tests and CI
+  ([`77b24a3`](https://github.com/koqjp/koq-player/commit/77b24a3ae680e76e09d73764afa986694c6a6f42))
+
+
 ## v0.2.7 (2026-04-21)
 
 ### Bug Fixes
